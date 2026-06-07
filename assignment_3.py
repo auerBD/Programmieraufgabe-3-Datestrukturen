@@ -39,8 +39,40 @@ def interpolation_search(arr: np.ndarray, target) -> int:
 def quad_search(arr: np.ndarray, target) -> int:
     """Quadratic binary search on a sorted array."""
     # TODO: your implementation goes here
-    pass
+    lo, hi = 0, len(arr) - 1
 
+    while lo <= hi:
+        n = hi - lo + 1
+
+        if arr[lo] == arr[hi]:
+            if arr[lo] == target:
+                return lo
+            return -1
+
+        # Schritt 1: Index t per Interpolationsformel berechnen
+        t = lo + int((hi - lo) * ((target - arr[lo]) / (arr[hi] - arr[lo])))
+        t = max(lo, min(hi, t))  # Clamp: Division-by-zero Schutz
+
+        if arr[t] == target:
+            return t
+        
+        step = max(1, int(math.sqrt(n)))
+
+        if arr[t] < target:
+            # Nach rechts springen in sqrt(n)-Schritten bis A[t] >= target
+            while t + step <= hi and arr[t + step] < target:
+                t += step
+            lo = t
+            hi = min(hi, t + step)
+        else:
+            # Nach links springen in sqrt(n)-Schritten bis A[t] <= target
+            while t - step >= lo and arr[t - step] > target:
+                t -= step
+            hi = t
+            lo = max(lo, t - step)
+
+    return -1
+    pass
 
 # ---------------------------------------------------------------------------
 # Test-array generators
