@@ -84,7 +84,8 @@ Das Array besteht aus den Werten 0, 1, …, n−2 gefolgt von einem einzelnen Au
 *(Beobachtung und Vergleich mit erwartetem O(log n) eintragen)*
 
 **`interpolation_search`:**  
-*(Beobachtung bei linear/random vs. worst_case eintragen)*
+  Bei linearen Daten bleibt die laufzeit fast gleich, bei random nicht mehr perfekt linear da die schätzung schwieriger ist.
+  Beim Worstcase wächst die Laufzeit fast proportional zu den Elementen.
 
 **`quad_search`:**  
 *(Beobachtung und Vergleich mit erwartetem O(log n) eintragen)*
