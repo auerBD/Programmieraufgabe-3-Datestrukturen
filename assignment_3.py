@@ -32,8 +32,28 @@ def binary_search(arr: np.ndarray, target) -> int:
 
 def interpolation_search(arr: np.ndarray, target) -> int:
     """Interpolation search on a sorted array."""
-    # TODO: your implementation goes here
-    pass
+    lo, hi = 0, len(arr) - 1
+
+    while lo <= hi and arr[lo] <= target <= arr[hi]:
+        # Avoid division by zero when all values in range are equal
+        if arr[hi] == arr[lo]:
+            if arr[lo] == target:
+                return lo
+            return -1
+
+        # Estimate the likely position using linear interpolation
+        pos = lo + int((hi - lo) * (target - arr[lo]) / (arr[hi] - arr[lo]))
+
+        if arr[pos] == target:
+            return pos
+        elif arr[pos] < target:
+            # Target is to the right → narrow search to right half
+            lo = pos + 1
+        else:
+            # Target is to the left → narrow search to left half
+            hi = pos - 1
+
+    return -1
 
 
 def quad_search(arr: np.ndarray, target) -> int:
