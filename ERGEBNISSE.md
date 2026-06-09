@@ -41,7 +41,7 @@ Das Array besteht aus den Werten 0, 1, …, n−2 gefolgt von einem einzelnen Au
 | `linear_search` | | | | |
 | `binary_search` | | | | |
 | `interpolation_search` |1.31µs|1.23µs|1.19µs|1.23µs|
-| `quad_search` | | | | |
+| `quad_search` |4.60µs|1.80µs|1.80µs|2.20µs|
 
 #### Array-Typ: `random_sorted`
 
@@ -50,7 +50,7 @@ Das Array besteht aus den Werten 0, 1, …, n−2 gefolgt von einem einzelnen Au
 | `linear_search` | | | | |
 | `binary_search` | | | | |
 | `interpolation_search` |2.40µs|1.21µs|2.42µs|2.32µs|
-| `quad_search` | | | | |
+| `quad_search` |4.30µs|4.10µs|4.60µs|10.40µs|
 
 #### Array-Typ: `worst_case`
 
@@ -59,7 +59,7 @@ Das Array besteht aus den Werten 0, 1, …, n−2 gefolgt von einem einzelnen Au
 | `linear_search` | | | *(skipped)* | *(skipped)* |
 | `binary_search` | | | | |
 | `interpolation_search` |269.62µs|1375.88µs|5542.11µs|28015.75µs|
-| `quad_search` | | | | |
+| `quad_search` |4.40µs|7.40µs|12.30µs|25.40µs|
 
 ### 2.2 Worst-Case-Demonstration `interpolation_search`
 
@@ -67,7 +67,7 @@ Das Array besteht aus den Werten 0, 1, …, n−2 gefolgt von einem einzelnen Au
 |---|---|---|---|---|---|---|
 | `binary_search` | | | | | | |
 | `interpolation_search` |265.46µs|1354.46µs|2758.45µs|5472.29µs|13788.04µs|27175.82µs|
-| `quad_search` | | | | | | |
+| `quad_search` |3.70µs|5.70µs|7.20µs|11.90µs|13.90µs|19.10µs|
 
 ---
 
@@ -88,7 +88,8 @@ Das Array besteht aus den Werten 0, 1, …, n−2 gefolgt von einem einzelnen Au
   Beim Worstcase wächst die Laufzeit fast proportional zu den Elementen.
 
 **`quad_search`:**  
-*(Beobachtung und Vergleich mit erwartetem O(log n) eintragen)*
+Quad Search liegt erwartungsgemäß zwischen Binary und Interpolation: im Normalfall ähnlich schnell wie Binary,
+ im Worst Case ist es aber deutlich besser als Interpolation aber schlechter als Binary.
 
 ### 3.2 Auffälligkeiten
 
