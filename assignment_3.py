@@ -27,7 +27,6 @@ def binary_search(arr: np.ndarray, target) -> int:
         else:
             hi = mid - 1
     return -1
-    pass
 
 
 def interpolation_search(arr: np.ndarray, target) -> int:
@@ -57,8 +56,17 @@ def interpolation_search(arr: np.ndarray, target) -> int:
 
 
 def quad_search(arr: np.ndarray, target) -> int:
-    """Quadratic binary search on a sorted array."""
-    # TODO: your implementation goes here
+    """Quadratic binary search on a sorted array.
+
+    Combines interpolation (to estimate the likely position t) with
+    sqrt(n)-sized jumps to bracket the target, then recurses on the
+    narrowed interval.  On uniformly distributed data the interpolation
+    step lands close to the target so the jump phase terminates quickly,
+    giving O(log log n) expected behaviour.  On adversarial data
+    (e.g. make_worst_case_array) the interpolation estimate can be far
+    off, but the sqrt(n) jumps still limit each iteration to O(sqrt(n))
+    work, keeping the worst case at O(sqrt(n)) rather than O(n).
+    """
     lo, hi = 0, len(arr) - 1
 
     while lo <= hi:
@@ -69,53 +77,79 @@ def quad_search(arr: np.ndarray, target) -> int:
                 return lo
             return -1
 
-        # Schritt 1: Index t per Interpolationsformel berechnen
+        # Step 1: estimate position via interpolation formula
         t = lo + int((hi - lo) * ((target - arr[lo]) / (arr[hi] - arr[lo])))
-        t = max(lo, min(hi, t))  # Clamp: Division-by-zero Schutz
+        t = max(lo, min(hi, t))  # clamp to valid range
 
         if arr[t] == target:
             return t
-        
+
         step = max(1, int(math.sqrt(n)))
 
         if arr[t] < target:
-            # Nach rechts springen in sqrt(n)-Schritten bis A[t] >= target
+            # Jump right in sqrt(n)-sized steps until arr[t + step] >= target
             while t + step <= hi and arr[t + step] < target:
                 t += step
-            lo = t
+            lo = t + 1                  # arr[t] < target, so exclude t
             hi = min(hi, t + step)
         else:
-            # Nach links springen in sqrt(n)-Schritten bis A[t] <= target
+            # Jump left in sqrt(n)-sized steps until arr[t - step] <= target
             while t - step >= lo and arr[t - step] > target:
                 t -= step
-            hi = t
+            hi = t - 1                  # arr[t] > target, so exclude t
             lo = max(lo, t - step)
 
     return -1
-    pass
+
 
 # ---------------------------------------------------------------------------
 # Test-array generators
 # ---------------------------------------------------------------------------
 
 def make_linear_array(n: int, seed: int = 0) -> np.ndarray:
-    """Return a sorted array whose values are approximately i + small_noise."""
-    # TODO: add explanatory remarks about how this array type affects search behaviour
+    """Return a sorted array whose values are approximately i + small_noise.
+
+    Because values grow roughly linearly (arr[i] ≈ i), the distribution is
+    nearly uniform.  Interpolation search thrives here: the interpolation
+    formula estimates the target's position very accurately, so it typically
+    converges in O(log log n) steps.  Binary search is unaffected by value
+    distribution and runs in O(log n) as usual.
+    """
     rng = np.random.default_rng(seed)
     arr = np.sort(np.arange(n, dtype=float) + rng.uniform(-0.4, 0.4, n))
     return arr
 
 
 def make_random_sorted_array(n: int, seed: int = 1) -> np.ndarray:
-    """Return a sorted array of n random floats drawn from [0, 2n)."""
-    # TODO: add explanatory remarks about how this array type affects search behaviour
+    """Return a sorted array of n random floats drawn from [0, 2n).
+
+    Values are uniformly distributed over [0, 2n), so the array is also
+    roughly linear on average.  Interpolation search still benefits from the
+    near-uniform spacing and achieves O(log log n) expected performance.
+    Compared to make_linear_array the noise is larger, so the interpolation
+    estimate is slightly less precise, but the asymptotic behaviour is the
+    same.  Binary search remains O(log n) regardless.
+    """
     rng = np.random.default_rng(seed)
     return np.sort(rng.uniform(0.0, 2.0 * n, n))
 
 
 def make_worst_case_array(n: int) -> np.ndarray:
-    """Return an array that forces O(n) behaviour in interpolation_search."""
-    # TODO: add explanatory remarks about why this array type is a worst case
+    """Return an array that forces O(n) behaviour in interpolation_search.
+
+    The array is [0, 1, 2, ..., n-2, n²].  The single huge outlier at the
+    end skews the value range to [0, n²], making the denominator in the
+    interpolation formula (arr[hi] - arr[lo]) enormous.  For any target in
+    the densely packed prefix [0, n-2] the estimated position is therefore
+    nearly always 0 — far to the left of the true position.  Each iteration
+    advances lo by only 1, so the search degenerates to a linear scan:
+    O(n) steps instead of O(log log n).
+
+    Binary search is immune (it only looks at indices, not values) and stays
+    at O(log n).  Quad search is also more robust because the sqrt(n)-jump
+    phase covers the distance to the target in O(sqrt(n)) steps even when
+    the interpolation estimate is poor.
+    """
     values = list(range(n - 1)) + [n * n]
     return np.array(values, dtype=float)
 
@@ -172,13 +206,12 @@ if __name__ == "__main__":
     for label, builder in array_builders:
         arrays = {n: builder(n) for n in sizes}
 
-        # TODO: uncomment the sanity checks below once your implementation is ready
-        # small = arrays[sizes[0]]
-        # target_small = small[len(small) // 2]
-        # for fn in search_fns:
-        #     assert _is_correct_search(small, target_small, fn), (
-        #         f"{fn.__name__} returned wrong result for {label.strip()}"
-        #     )
+        small = arrays[sizes[0]]
+        target_small = small[len(small) // 2]
+        for fn in search_fns:
+            assert _is_correct_search(small, target_small, fn), (
+                f"{fn.__name__} returned wrong result for {label.strip()}"
+            )
 
         for fn in search_fns:
             if fn is linear_search and label.strip() == "worst_case":
